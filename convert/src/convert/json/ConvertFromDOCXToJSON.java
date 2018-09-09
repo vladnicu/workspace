@@ -29,6 +29,7 @@ public class ConvertFromDOCXToJSON {
                 System.out.println(para.getText());
             }
             fis.close();
+            document.close();
         } catch (Exception e) {
             e.printStackTrace();
         }

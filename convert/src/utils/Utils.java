@@ -11,11 +11,11 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.io.Writer;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.dom4j.Document;
 import org.dom4j.Element;
 import org.dom4j.io.SAXReader;
@@ -59,7 +59,7 @@ public class Utils {
 		BufferedReader in = null;
 		List<String> myList = new ArrayList<String>();
 		try {   
-		    in = new BufferedReader(new FileReader(filename));
+		    in = new BufferedReader(new InputStreamReader(new FileInputStream(filename), "UTF-8"));
 		    String str;
 		    while ((str = in.readLine()) != null) {
 		        myList.add(str);
@@ -153,6 +153,26 @@ public class Utils {
     		}
     	}
     	return filesList;
+    }
+    
+    public static XSSFWorkbook readXLSXFile(String filename) {
+    	File myFile = new File(filename);
+		FileInputStream fis = null;
+		try {
+			fis = new FileInputStream(myFile);
+		} catch (FileNotFoundException e1) {
+			e1.printStackTrace();
+			return null;
+		}
+		
+		// Finds the workbook instance for XLSX file 
+		try {
+			return new XSSFWorkbook(fis);
+		} catch (IOException e) {
+			e.printStackTrace();
+		}
+		
+		return null;
     }
 
 }

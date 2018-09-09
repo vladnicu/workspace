@@ -13,7 +13,6 @@ import utils.Consts;
 import utils.Utils;
 
 public class ConvertFromXMLToCSVDslone {
-	private static final String ATTRIBUTE_SEPARATOR = ",";
 	private static final String SEPARATOR = ";";
 
 	public static void main(String[] args) {
@@ -52,7 +51,7 @@ public class ConvertFromXMLToCSVDslone {
 		String absolute_url = "";
 		String cluster = "";
 		String author = "";
-		String joined_by;
+		String joined_by = null;
 		String author_str = "";
 		boolean per_curiam;
 		String date_created = "";
