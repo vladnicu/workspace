@@ -26,7 +26,7 @@ public class ConvertFromJSONtoCSVHermesdia {
 		File inputDir =  new File(System.getProperty("user.dir") + "/input");
 		if(!inputDir.exists()) {
 			inputDir.mkdir();
-			System.out.println("[ERROR] The input file was missing, I just created one, please add the json files");
+			System.out.println("[INFO] The input file was missing, I just created one, please add the json files");
 			return;
 		}
 		
