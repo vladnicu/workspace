@@ -4,6 +4,9 @@ import java.io.File;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 import java.util.List;
 
 import org.dom4j.Document;
@@ -16,6 +19,8 @@ import com.opencsv.CSVReader;
 
 
 public class Convert {
+	
+	private DateFormat csvFormatter  = new SimpleDateFormat("yyyy-MM-dd");
 
 	public static void main(String[] args) {
 		Convert instance = new Convert();
@@ -23,6 +28,7 @@ public class Convert {
 		System.out.println("[INFO] Done!");
 	}
 	
+	@SuppressWarnings("unused")
 	private void run() {
 		
 		String inputDirName = System.getProperty("user.dir") + "/input";
@@ -49,6 +55,12 @@ public class Convert {
 			try {
 				csvReader = new CSVReader(new FileReader(csvFile));
 				List<String[]> allData = csvReader.readAll();
+				
+				Document doc = DocumentHelper.createDocument();
+				Element rootElement = doc.addElement("Document");
+				rootElement.addAttribute("xmlns", "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03");
+				rootElement.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
+				rootElement.addAttribute("xsi:schemaLocation", "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd");
 
 				for(int i = 1; i < allData.size(); i++){
 					
@@ -71,10 +83,8 @@ public class Convert {
 					String DbtrAcctIBAN = split[10];
 					String DbtrAgtBIC = split[11];
 					
-					// EndToEnd reference
 					String EndToEndId = split[12];
 					
-					//Amount
 					String InstdAmt = split[13];
 					
 					String FinInstnIdBIC = split[14];
@@ -85,14 +95,7 @@ public class Convert {
 					
 					String RmtInf = split[18];
 
-					Document doc = DocumentHelper.createDocument();
-
-					//  xmlns="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd">
-					Element rootElement = doc.addElement("Document");
-					rootElement.addAttribute("xmlns", "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03");
-					rootElement.addAttribute("xmlns:xsi", "http://www.w3.org/2001/XMLSchema-instance");
-					rootElement.addAttribute("xsi:schemaLocation", "urn:iso:std:iso:20022:tech:xsd:pain.001.001.03 pain.001.001.03.xsd");
-
+					//write the XML
 					Element cstmrCdtTrfInitnElement = rootElement.addElement("CstmrCdtTrfInitn");
 
 					Element GrpHdrElement = cstmrCdtTrfInitnElement.addElement("GrpHdr");
@@ -128,7 +131,7 @@ public class Convert {
 					
 					Element AmtElement = CdtTrfTxInfElement.addElement("Amt");
 					//TODO poate sa fie si EURO
-					Element InstdAmtElement = AmtElement.addElement("InstdAmt").addAttribute("Ccy", "USD").addText(InstdAmt);
+					Element InstdAmtElement = AmtElement.addElement("InstdAmt").addText(InstdAmt);
 					
 					Element CdtrAgtElement = CdtTrfTxInfElement.addElement("CdtrAgt");
 					Element FinInstnI2dElement = CdtrAgtElement.addElement("FinInstnId");
@@ -146,15 +149,14 @@ public class Convert {
 					
 					Element RmtInfElement = CdtTrfTxInfElement.addElement("RmtInf");
 					Element UstrdElement = RmtInfElement.addElement("Ustrd").addText(RmtInf);
-					
-
-					try {
-						System.out.println("[INFO] writing the XML file");
-						makeFile(outputDirName, doc);
-					} catch (IOException e) {
-						System.out.println("[ERROR] failed to write the ");
-						e.printStackTrace();
-					}
+				}
+				
+				try {
+					System.out.println("[INFO] writing the XML file");
+					makeFile(outputDirName, doc);
+				} catch (IOException e) {
+					System.out.println("[ERROR] failed to write the ");
+					e.printStackTrace();
 				}
 			} catch (IOException e) {
 				System.out.println("[ERROR] failed to read the CSV file");
@@ -166,7 +168,8 @@ public class Convert {
 	}
 
 	public void makeFile(String outputDirName, Document doc) throws IOException {
-		FileOutputStream fos = new FileOutputStream(outputDirName + "/person.xml");
+		String date = csvFormatter.format(new Date());
+		FileOutputStream fos = new FileOutputStream(outputDirName + "/" + date +"_output.xml");
 		// Pretty print the document to System.out
 		OutputFormat format = OutputFormat.createPrettyPrint();
 		XMLWriter writer;
